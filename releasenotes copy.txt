@@ -1,0 +1,22 @@
+Release Notes
+
+Mattcrosoft Pain(t) v1.00.00
+
+Added Features
+- Undo and Redo - this MUST use at least (more is ok) one "stack" (this is an abstract data structure in Java) 👌
+- provide a blank starting image and a clear canvas (with "are you sure" check) tool 👌
+- draw yet another additional shape of your choice 👌
+- be able to draw a regular side polygon with any #of sides 👌
+- select and copy/paste a piece of the image  - "live draw" is required for this and other edits/draws 👌
+- select and move a piece of the image 👌
+- allow the addition of text from user-typed input to your image. 👌
+- tabs are required. 
+- git use is required. (github is fine)
+
+
+Known problems
+- Dash line only works when checkbox is selected before the togglebutton is selected
+- Creating many shapes or lines degrades the image quality over time, need to revise my preview method
+
+Upcoming Features
+- 
