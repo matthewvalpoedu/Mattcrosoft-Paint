@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" spacing="10.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.paint.PaintController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" />
+    </padding>
+    <MenuBar prefHeight="28.0" prefWidth="552.0">
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem onAction="#onOpenButtonClick" text="Open" />
+            <MenuItem onAction="#onSaveButtonClick" text="Save" />
+            <MenuItem onAction="#onSaveAsButtonClick" text="Save As" />
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit" />
+        <Menu mnemonicParsing="false" text="Help">
+            <MenuItem mnemonicParsing="false" onAction="#onAboutButtonClick" text="About" />
+        </Menu>
+    </MenuBar>
+    <ToolBar prefHeight="90.0" prefWidth="1061.0">
+        <TilePane hgap="5.0" prefColumns="2" prefRows="2" vgap="5.0">
+            <children>
+                <Button fx:id="undo" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onUndoButtonClick" prefHeight="35.0" prefWidth="35.0" />
+                <Button fx:id="redo" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRedoButtonClick" prefHeight="35.0" prefWidth="35.0" />
+                <TextField fx:id="brushSize" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="3" />
+                <ToggleButton fx:id="dashed" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="35.0" />
+            </children>
+            <padding>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+            </padding>
+        </TilePane>
+        <ColorPicker fx:id="colorPicker" editable="true">
+            <value>
+                <Color />
+            </value>
+        </ColorPicker>
+        <Label fx:id="colorLabel" text="  " />
+        <TilePane hgap="5.0" prefColumns="8" prefRows="2" vgap="5.0">
+            <padding>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+            </padding>
+            <ToggleButton fx:id="deselect" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDeselectButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="draw" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDrawButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="line" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLineButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="square" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSquareButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="triangle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onTriangleButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="rectangle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRectangleButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="eraser" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEraserButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="eyedrop" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEyedropButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="circle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCircleButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="ellipse" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEllipseButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="diamond" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDiamondButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <Button fx:id="clearCanvas" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onClearCanvasButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="textBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onTextBoxButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="parallelogram" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onParallelogramButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="copy" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCopyButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="polygon" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPolygonButtonClick" prefHeight="35.0" prefWidth="35.0" />
+        </TilePane>
+        <TextField fx:id="sides" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="3" />
+      <Button fx:id="newTab" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onNewTabButtonClick" prefHeight="35.0" prefWidth="35.0" text="Button" />
+      <Button fx:id="uploadCanvas" mnemonicParsing="false" onAction="#onUploadCanvasButtonClick" text="upload" />
+      <ToggleButton fx:id="autoSave" mnemonicParsing="false" onAction="#onAutoSaveButtonClick" text="ToggleButton" />
+    </ToolBar>
+    <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+        <tabs>
+            <Tab text="Untitled Tab 1">
+                <AnchorPane fx:id="rootPane1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="900.0" prefWidth="1880.0">
+                    <AnchorPane fx:id="rootPane" prefHeight="817.0" prefWidth="1880.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <Canvas fx:id="canvas" height="500.0" width="600.0">
+                            <AnchorPane.topAnchor>0.0</AnchorPane.topAnchor>
+                            <AnchorPane.bottomAnchor>0.0</AnchorPane.bottomAnchor>
+                            <AnchorPane.leftAnchor>0.0</AnchorPane.leftAnchor>
+                            <AnchorPane.rightAnchor>0.0</AnchorPane.rightAnchor>
+                            <cursor>
+                                <Cursor fx:constant="CROSSHAIR" />
+                            </cursor>
+                        </Canvas>
+                    </AnchorPane>
+                </AnchorPane>
+            </Tab>
+        </tabs>
+    </TabPane>
+</VBox>
