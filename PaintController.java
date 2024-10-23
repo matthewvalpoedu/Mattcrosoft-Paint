@@ -1,8 +1,13 @@
 package com.example.paint;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -11,26 +16,30 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Stack;
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+/** Controller class for PaintApplication, includes button functionalities and other methods */
 public class PaintController {
-    //initialize variables;
+    //initialize variables
     private static PaintController instance;
     public PaintController() {}
     public static PaintController getInstance() {return instance;}
@@ -39,69 +48,44 @@ public class PaintController {
     @FXML private Stage stage = new Stage();
     @FXML private Canvas canvas;
     @FXML private Label label = new Label();
+    @FXML private Label colorLabel;
     @FXML private FileChooser fileChooser = new FileChooser();
     @FXML private Text text = new Text("test");
-    @FXML private TextField brushSize;
-    @FXML private ToggleButton eraser;
-    @FXML private ToggleButton deselect;
-    @FXML private ToggleButton draw;
-    @FXML private ToggleButton line;
-    @FXML private Button clearCanvas;
-    @FXML private ToggleButton eyedrop;
-    @FXML private ToggleButton square;
-    @FXML private ToggleButton rectangle;
-    @FXML private ToggleButton triangle;
-    @FXML private ToggleButton circle;
-    @FXML private ToggleButton ellipse;
-    @FXML private ToggleButton textBox;
-    @FXML private ToggleButton diamond;
-    @FXML private ToggleButton copy;
-    @FXML private ToggleButton parallelogram;
-    @FXML private ToggleButton polygon;
-    @FXML private Button newTab;
-    @FXML private TextField sides;
+    @FXML private TextField brushSize, sides, points, degrees;
+    @FXML private ToggleButton eraser, deselect, draw, line, eyedrop, square, rectangle, triangle, circle, ellipse, textBox, diamond, copy, parallelogram, polygon, star, dashed, autoSave;
+    @FXML private Button clearCanvas, rotate, mirror, flip, newTab, undo, redo;
     @FXML private ColorPicker colorPicker;
-    @FXML private Image loadedImage;
-    @FXML private ToggleButton dashed;
     @FXML private AnchorPane rootPane;
-    @FXML private AnchorPane rootPane1;
-    @FXML private Label colorLabel;
     @FXML private TabPane tabPane;
-    @FXML private Button undo;
-    @FXML private Button redo;
-    private final Stack<WritableImage> undoStack = new Stack<>();
-    private final Stack<WritableImage> redoStack = new Stack<>();
+    @FXML private Label autoSaveLabel = new Label();
 
+    private ScheduledExecutorService executorService;
     private boolean hasUnsavedChanges = false;
+    private UndoRedoTool urt;
+    private final CanvasModTool cmt = new CanvasModTool();
+
     protected void markAsUnsaved() {
         hasUnsavedChanges = true;
     }
     public boolean hasUnsavedChanges() {
         return hasUnsavedChanges;
     }
-    @FXML
-    void initialize() {
-        //initTab();
-        //Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-        if (tabPane.getTabs().isEmpty()) {
-            onNewTabButtonClick(null);  // Create a new default tab with a canvas
-        }
 
+    /** Runs on startup to set up the tabPane, undo and redo buttons, and icon images */
+    @FXML void initialize() {
+        urt = new UndoRedoTool(this);
+        updateUndoRedoButtons();
+        if (tabPane.getTabs().isEmpty()) {
+            onNewTabButtonClick();  // Create a new default tab with a canvas
+        }
         canvas.widthProperty().bind(rootPane.widthProperty()); //binds canvas to rootPane
         canvas.heightProperty().bind(rootPane.heightProperty());
-        canvas.widthProperty().addListener((observable, oldValue, newValue) -> {
-            fillCanvasWithBackground();
-        });
-        updateUndoRedoButtons();
-        canvas.heightProperty().addListener((observable, oldValue, newValue) -> {
-            fillCanvasWithBackground();
-        });
+        canvas.widthProperty().addListener((observable, oldValue, newValue) -> fillCanvasWithBackground());
+        canvas.heightProperty().addListener((observable, oldValue, newValue) -> fillCanvasWithBackground());
         colorPicker.setOnAction(e -> {
-            colorLabel.setText(ColorThing.colorToHex(colorPicker.getValue())); //prints hexcode to colorLabel
+            colorLabel.setText(ColorThing.colorToHex(colorPicker.getValue())); //prints hex code to colorLabel
         });
-
         IconUploader uploader = new IconUploader();
-        //UndoRedo ur = new UndoRedo(canvas);
         uploader.uploadImage(line, "/iconImages/line.png");
         uploader.uploadImage(draw, "/iconImages/draw.png");
         uploader.uploadImage(eraser, "/iconImages/eraser.png");
@@ -121,17 +105,24 @@ public class PaintController {
         uploader.uploadImage(parallelogram, "/iconImages/parallelogram.png");
         uploader.uploadImage(undo, "/iconImages/undo.png");
         uploader.uploadImage(redo, "/iconImages/redo.png");
-        draw.setSelected(true);
+        uploader.uploadImage(autoSave, "/iconImages/autoSave.png");
+        uploader.uploadImage(star, "/iconImages/star.png");
+        uploader.uploadImage(rotate, "/iconImages/rotate.png");
+        uploader.uploadImage(mirror, "/iconImages/mirror.png");
+        uploader.uploadImage(flip, "/iconImages/flip.png");
+        uploader.uploadImage(newTab, "/iconImages/newTab.png");
         clearMouse();
+        clear();
+        autoSaveLabel.setText("Auto Save is off");
+        if (SystemTray.isSupported()) {
+            System.out.println("System tray enabled");
+        }
+        String file = "/Users/matthewdemik/log.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))){} catch (IOException e) {e.printStackTrace();}
     }
+
+    /** Paints the canvas white to write over any existing color */
     void fillCanvasWithBackground() {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.WHITE);
-        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        System.out.println("width: " + canvas.getWidth());
-        System.out.println("height: " + canvas.getHeight());
-    }
-    void fillNewCanvasWithBackground() {
         Canvas tabCanvas = getCurrentTabCanvas();
         if (tabCanvas != null && tabCanvas.getWidth() > 0 && tabCanvas.getHeight() > 0) {
             GraphicsContext gc = tabCanvas.getGraphicsContext2D();
@@ -142,52 +133,29 @@ public class PaintController {
         }
     }
 
-    void saveState() {
-        WritableImage snapshot = new WritableImage((int) getCurrentTabCanvas().getWidth(), (int) getCurrentTabCanvas().getHeight());
-        getCurrentTabCanvas().snapshot(null, snapshot);
-        if (undoStack.size() >= 5) {undoStack.removeFirst();}
-        undoStack.push(snapshot);
-        redoStack.clear();
-        markAsUnsaved();
-        updateUndoRedoButtons();
-        //System.out.println("save state called");
-    }
-
-    void updateUndoRedoButtons() {
-        undo.setDisable(undoStack.isEmpty());
-        redo.setDisable(redoStack.isEmpty());
-    }
-    private WritableImage getCurrentCanvas() {
-        WritableImage writableImage = new WritableImage((int) getCurrentTabCanvas().getWidth(), (int) getCurrentTabCanvas().getHeight());
-        getCurrentTabCanvas().snapshot(null, writableImage);
-        return writableImage;
-    }
-    private void restoreCanvas(WritableImage image) {
-        GraphicsContext gc = getCurrentTabCanvas().getGraphicsContext2D();
-        fillCanvasWithBackground();
-        gc.drawImage(image, 0, 0);
-    }
+    /** Functionality for undo button */
     @FXML void onUndoButtonClick() {
-        undoRedoExtraction(undoStack, redoStack);
+        urt.undo();
+        updateUndoRedoButtons();
     }
+    /** Functionality for redo button */
     @FXML void onRedoButtonClick() {
-        undoRedoExtraction(redoStack, undoStack);
+        urt.redo();
+        updateUndoRedoButtons();
     }
-    private void undoRedoExtraction(Stack<WritableImage> fromStack, Stack<WritableImage> toStack) {
-        if (!fromStack.isEmpty()) {
-            toStack.push(getCurrentCanvas());
-            if (toStack.size() > 5) {
-                toStack.removeFirst();
-            }
-            WritableImage nextState = fromStack.pop();
-            restoreCanvas(nextState);
-            markAsUnsaved();
-        }
+    /** If stacks are empty, disables undo and redo buttons respectively */
+    public void updateUndoRedoButtons() {
+        undo.setDisable(!urt.canUndo());
+        redo.setDisable(!urt.canRedo());
+    }
+    /** Saves the current state of the canvas for an undo or a redo */
+    public void saveState() {
+        urt.saveState();
         updateUndoRedoButtons();
     }
 
-    @FXML
-    void onDeselectButtonClick(ActionEvent e) {
+    /** Calls the deselectCopy method from DrawingTool on the click of a toggle button */
+    @FXML void onDeselectButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
@@ -196,7 +164,8 @@ public class PaintController {
             drawingTool.deselectCopy();
         }
     }
-    @FXML void onCopyButtonClick(ActionEvent e) {
+    /** Calls the copyAndMove method from DrawingTool on the click of a toggle button */
+    @FXML void onCopyButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
@@ -205,7 +174,9 @@ public class PaintController {
             drawingTool.copyAndMove();
         }
     }
-    @FXML void onTextBoxButtonClick(ActionEvent e) {
+
+    /** Allows the user to create a textbox anywhere on the canvas */
+    @FXML void onTextBoxButtonClick() {
         clear();
         clearMouse();
         getCurrentTabCanvas().setOnMousePressed(ex -> {
@@ -229,11 +200,14 @@ public class PaintController {
             });
         });
     }
+
+    /** Method to clear the toggle button selections */
     public void clear() {
-        for (ToggleButton toggleButton : Arrays.asList(line, draw, eraser, square, rectangle, triangle, circle, eyedrop, ellipse, diamond, deselect, textBox, parallelogram, polygon, copy)) {
+        for (ToggleButton toggleButton : Arrays.asList(line, draw, eraser, square, rectangle, triangle, circle, eyedrop, ellipse, diamond, deselect, textBox, parallelogram, polygon, star, copy)) {
             toggleButton.setSelected(false);
         }
     }
+    /** Method to clear previously logged mouse events */
     void clearMouse() {
         Canvas currentCanvas = getCurrentTabCanvas();
         if (currentCanvas != null) {
@@ -247,58 +221,57 @@ public class PaintController {
         }
     }
 
-    @FXML void onDrawButtonClick(ActionEvent e) {
+    /** Calls the freeDrawing method from DrawingTool on the click of a toggle button */
+    @FXML void onDrawButtonClick() {
         Canvas currentCanvas = getCurrentTabCanvas();
         if (currentCanvas != null) {
             DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
             clear();
             clearMouse();
             draw.setSelected(true);
-            if (dashed.isSelected()) {
-                drawingTool.dashTheLine();
-            } else {
-                drawingTool.unDashTheLine();
-            }
+            logUpdate(" Draw button selected");
             if (draw.isSelected()) {
-                drawingTool.freeDrawing(brushSize, colorPicker);
+                drawingTool.freeDrawing(brushSize, colorPicker, dashed);
             }
         } else {
             System.out.println("canvas is null");
         }
     }
-    @FXML void onLineButtonClick(ActionEvent e) {
+    /** Calls the drawLine method from DrawingTool on the click of a toggle button */
+    @FXML void onLineButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         line.setSelected(true);
+        logUpdate(" Line button selected");
         if (line.isSelected()) {
-            drawingTool.drawLine(brushSize, colorPicker);
+            drawingTool.drawLine(brushSize, colorPicker, dashed);
         }
     }
-    @FXML void onEraserButtonClick(ActionEvent e) {
+    /** Calls the useEraser method from DrawingTool on the click of a toggle button */
+    @FXML void onEraserButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
         eraser.setSelected(true);
+        logUpdate(" Eraser button selected");
         if (eraser.isSelected()) {
             drawingTool.useEraser(brushSize);
         }
     }
-    @FXML void onEyedropButtonClick(ActionEvent e) {
+    /** Calls the useEyedrop method from DrawingTool on the click of a toggle button */
+    @FXML void onEyedropButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
         eyedrop.setSelected(true);
+        logUpdate(" Eyedrop button selected");
         if (eyedrop.isSelected()) {
             drawingTool.useEyedrop(colorPicker);
         }
     }
-    @FXML void onClearCanvasButtonClick(ActionEvent e) {
+    /** Clears the entire canvas of any changes after user confirmation */
+    @FXML void onClearCanvasButtonClick() {
         clear();
         clearMouse();
         hasUnsavedChanges = false;
@@ -308,170 +281,114 @@ public class PaintController {
         alert.setContentText("Are you sure you want to clear the Canvas?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
-            fillNewCanvasWithBackground();
+            fillCanvasWithBackground();
+            logUpdate(" Canvas cleared");
         }
         else{
 
         }
     }
-    @FXML void onParallelogramButtonClick(ActionEvent e) {
+    /** Calls the drawParallelogram method from DrawingTool on the click of a toggle button */
+    @FXML void onParallelogramButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         parallelogram.setSelected(true);
+        logUpdate(" Parallelogram button selected");
         if (parallelogram.isSelected()) {
-            drawingTool.drawParallelogram(brushSize, colorPicker);
+            drawingTool.drawParallelogram(brushSize, colorPicker, dashed);
         }
     }
-    @FXML void onPolygonButtonClick(ActionEvent e) {
+    /** Calls the drawPolygon method from DrawingTool on the click of a toggle button */
+    @FXML void onPolygonButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         polygon.setSelected(true);
+        logUpdate(" Polygon button selected");
         if (polygon.isSelected()) {
-            drawingTool.drawPolygon(brushSize, colorPicker, sides);
+            drawingTool.drawPolygon(brushSize, colorPicker,dashed, sides);
         }
     }
-    @FXML void onDiamondButtonClick(ActionEvent e) {
+    /** Calls the drawStar method from DrawingTool on the click of a toggle button */
+    @FXML void onStarButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
+        star.setSelected(true);
+        logUpdate(" Star button selected");
+        if (star.isSelected()) {
+            drawingTool.drawStar(brushSize, colorPicker, dashed, points);
         }
+    }
+    /** Calls the drawDiamond method from DrawingTool on the click of a toggle button */
+    @FXML void onDiamondButtonClick() {
+        DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
+        clear();
+        clearMouse();
         diamond.setSelected(true);
+        logUpdate(" Diamond button selected");
         if (diamond.isSelected()) {
-            drawingTool.drawDiamond(brushSize, colorPicker);
+            drawingTool.drawDiamond(brushSize, colorPicker, dashed);
         }
     }
-    @FXML void onTriangleButtonClick(ActionEvent e) {
+    /** Calls the drawTriangle method from DrawingTool on the click of a toggle button */
+    @FXML void onTriangleButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         triangle.setSelected(true);
+        logUpdate(" Triangle button selected");
         if (triangle.isSelected()) {
-            drawingTool.drawTriangle(brushSize, colorPicker);
+            drawingTool.drawTriangle(brushSize, colorPicker, dashed);
         }
     }
-    @FXML void onEllipseButtonClick(ActionEvent e) {
+    /** Calls the drawEllipse method from DrawingTool on the click of a toggle button */
+    @FXML void onEllipseButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         ellipse.setSelected(true);
+        logUpdate(" Ellipse button selected");
         if (ellipse.isSelected()) {
-            drawingTool.drawEllipse(brushSize, colorPicker);
+            drawingTool.drawEllipse(brushSize, colorPicker, dashed);
         }
     }
-    @FXML void onCircleButtonClick(ActionEvent e) {
+    /** Calls the drawCircle method from DrawingTool on the click of a toggle button */
+    @FXML void onCircleButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         circle.setSelected(true);
+        logUpdate(" Circle button selected");
         if (circle.isSelected()) {
-            drawingTool.drawCircle(brushSize, colorPicker);
+            drawingTool.drawCircle(brushSize, colorPicker, dashed);
         }
     }
-    @FXML void onSquareButtonClick(ActionEvent e) {
+    /** Calls the drawSquare method from DrawingTool on the click of a toggle button */
+    @FXML void onSquareButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         square.setSelected(true);
+        logUpdate(" Square button selected");
         if (square.isSelected()) {
-            drawingTool.drawSquare(brushSize, colorPicker);
+            drawingTool.drawSquare(brushSize, colorPicker, dashed);
         }
     }
-    @FXML void onRectangleButtonClick(ActionEvent e) {
+    /** Calls the drawRectangle method from DrawingTool on the click of a toggle button */
+    @FXML void onRectangleButtonClick() {
         DrawingTool drawingTool = new DrawingTool(getCurrentTabCanvas());
         clear();
         clearMouse();
-        if (dashed.isSelected()) {
-            drawingTool.dashTheLine();
-        } else {
-            drawingTool.unDashTheLine();
-        }
         rectangle.setSelected(true);
+        logUpdate(" Rectangle button selected");
         if (rectangle.isSelected()) {
-            drawingTool.drawRectangle(brushSize, colorPicker);
+            drawingTool.drawRectangle(brushSize, colorPicker, dashed);
         }
     }
-    private BufferedImage canvasToBufferedImage(String format) {
-        //converts entire canvas to a bufferedImage
-        int width = (int) getCurrentTabCanvas().getWidth();
-        int height = (int) getCurrentTabCanvas().getHeight();
-        WritableImage writableImage = new WritableImage(width, height);
-        getCurrentTabCanvas().snapshot(null, writableImage);
-        BufferedImage bufferedImage;
-        if (format.equals("jpg") || format.equals("bmp")) { //checks formatting to see if transparency is allowed or not; .jpg and .bmp do not allow transparent pixels
-            bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        } else {
-            bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        }
-        PixelReader pixelReader = writableImage.getPixelReader();
-        for (int x = 0; x < width; x++) { //writes image
-            for (int y = 0; y < height; y++) {
-                Color fxColor = pixelReader.getColor(x, y);
-                java.awt.Color awtColor;
-                if (format.equals("jpg") || format.equals("bmp")) { //same transparency check as before
-                    awtColor = new java.awt.Color((float) fxColor.getRed(),
-                            (float) fxColor.getGreen(), (float) fxColor.getBlue());
-                    bufferedImage.setRGB(x, y, awtColor.getRGB());
-                } else {
-                    awtColor = new java.awt.Color((float) fxColor.getRed(),
-                            (float) fxColor.getGreen(), (float) fxColor.getBlue(),
-                            (float) fxColor.getOpacity());
-                    bufferedImage.setRGB(x, y, awtColor.getRGB());
-                }
-            }
-        }
 
-        return bufferedImage;
-    }
-    @FXML private void drawImageOnCanvas(Image image) {
-        //draws the image on the canvas directly
-        GraphicsContext g = getCurrentTabCanvas().getGraphicsContext2D();
-        double imageWidth = image.getWidth();
-        double imageHeight = image.getHeight();
-        double canvasWidth = getCurrentTabCanvas().getWidth();
-        double canvasHeight = getCurrentTabCanvas().getHeight();
-        //calculates aspect ratio to not stretch image
-        double scaleFactor = Math.min(canvasWidth / imageWidth, canvasHeight / imageHeight);
-        double newWidth = imageWidth * scaleFactor;
-        double newHeight = imageHeight * scaleFactor;
-        fillNewCanvasWithBackground();
-        g.drawImage(image, (canvasWidth - newWidth) / 2, (canvasHeight - newHeight) / 2, newWidth, newHeight);
-    }
+    /** Opens a file chooser and allows the user to select image files from their computer to upload to the canvas */
     @FXML void onOpenButtonClick(ActionEvent e) {
         //opens file explorer
         fileChooser.setTitle("Open Image File");
@@ -480,24 +397,28 @@ public class PaintController {
                 new FileChooser.ExtensionFilter("All Images", "*.jpg", "*.png", "*.gif", "*.bmp"),
                 new FileChooser.ExtensionFilter("JPEG image", "*.jpg"), new FileChooser.ExtensionFilter("PNG image", "*.png"),
                 new FileChooser.ExtensionFilter("GIF image", "*.gif"), new FileChooser.ExtensionFilter("BMP image", "*.bmp")
-
         );
         File selectedFile = fileChooser.showOpenDialog(stage);
         if (selectedFile != null) {
             text.setText(selectedFile.toString());
             label.setText(selectedFile.getName());
             try {
-                loadedImage = new Image(new FileInputStream(selectedFile));
-                drawImageOnCanvas(loadedImage);//draws the copied image onto the canvas
+                Image loadedImage = new Image(new FileInputStream(selectedFile));
+                fillCanvasWithBackground();
+                cmt.drawImageOnCanvas(getCurrentTabCanvas(), loadedImage);
+                logUpdate(" Image " + selectedFile.getAbsolutePath() + " opened"); //draws the copied image onto the canvas
                 markAsUnsaved();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
     }
+    /** Method needed to attach accelerators */
     public void onOpenButtonClick() {
         onOpenButtonClick(null);
     }
+
+    /** Allows the user to save the current canvas anywhere on their computer */
     @FXML void onSaveAsButtonClick(ActionEvent e) {
         if (fileChooser.getExtensionFilters().isEmpty()) {
             fileChooser.getExtensionFilters().addAll( //filters for only image file extensions in the file explorer
@@ -517,12 +438,13 @@ public class PaintController {
                     file = new File(file.getAbsolutePath() + "." + format);
                 }
                 //converts image to bufferedImage
-                BufferedImage bufferedImage = canvasToBufferedImage(format);
+                BufferedImage bufferedImage = cmt.canvasToBufferedImage(getCurrentTabCanvas(), format);
                 //writes bufferedImage to file
                 if (!ImageIO.write(bufferedImage, format, file)) {
                     System.out.println("Format not supported: " + format);
                 } else {
                     System.out.println("Image saved successfully: " + file.getAbsolutePath());
+                    logUpdate(" Image saved as " + file.getAbsolutePath());
                     hasUnsavedChanges = false;
                 }
             } catch (IOException ex) {
@@ -530,27 +452,36 @@ public class PaintController {
             }
         }
     }
+    /** Method needed to attach accelerators */
     public void onSaveAsButtonClick() {
         onSaveAsButtonClick(null);
     }
+
+    /** Allows the user to save the current canvas in the current file location */
     @FXML void onSaveButtonClick(ActionEvent e) {
-        //gets the value of the open file
-        File selectedFile = new File(text.getText());
-        try {
-            //copies the image pixels
-            Image image = loadedImage;
-            String format = selectedFile.getName().substring(selectedFile.getName().lastIndexOf(".") + 1);
-            BufferedImage bufferedImage = canvasToBufferedImage(format);
-            ImageIO.write(bufferedImage, format, selectedFile);
-            hasUnsavedChanges = false;
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if (Objects.equals(text.getText(), "test")) {
+            onSaveAsButtonClick(null);
+        } else {
+            File selectedFile = new File(text.getText());
+            try {
+                String format = selectedFile.getName().substring(selectedFile.getName().lastIndexOf(".") + 1);
+                BufferedImage bufferedImage = cmt.canvasToBufferedImage(getCurrentTabCanvas(), format);
+                ImageIO.write(bufferedImage, format, selectedFile);
+                logUpdate(" Image " + selectedFile.getAbsolutePath() + " saved");
+                hasUnsavedChanges = false;
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
+    /** Method needed to attach accelerators */
     public void onSaveButtonClick() {
         onSaveButtonClick(null);
     }
-    @FXML void onAboutButtonClick(ActionEvent e) { //opens about pop-up
+
+    /** Pops up information about the current version of Mattcrosoft Pain(t) */
+    @FXML void onAboutButtonClick() { //opens about pop-up
+        logUpdate(" About button clicked");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setGraphic(null);
         alert.setTitle("About");
@@ -566,7 +497,7 @@ public class PaintController {
                              - Allows the user to draw a line
                              - Allows the user to choose the size and color of their line
                              - Allows the user to save and save as an edited image in any of the image types
-                             - Larger image accomodation
+                             - Larger image accommodation
                              - Added help menu with 'about' dialogue
                 
                              Known problems
@@ -578,8 +509,10 @@ public class PaintController {
         alert.setHeight(465);
         alert.showAndWait();
     }
-    @FXML
-    void onNewTabButtonClick(ActionEvent e) {
+
+    /** Creates a new tab with a new canvas */
+    @FXML void onNewTabButtonClick() {
+        logUpdate(" New tab opened");
         Tab newTab = new Tab("Untitled Tab " + (tabPane.getTabs().size() + 1));
         AnchorPane newAnchorPane = new AnchorPane();
         newAnchorPane.setPrefHeight(817.0);
@@ -601,16 +534,15 @@ public class PaintController {
         newTab.setContent(newAnchorPane);
         tabPane.getTabs().add(newTab);
         tabPane.getSelectionModel().select(newTab);
-        fillNewCanvasWithBackground();
+        fillCanvasWithBackground();
     }
+    /** Returns the canvas of the tab that is currently being viewed by the user */
     public Canvas getCurrentTabCanvas() {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-        if (selectedTab != null && selectedTab.getContent() instanceof AnchorPane) {
-            AnchorPane rootAnchorPane = (AnchorPane) selectedTab.getContent();
+        if (selectedTab != null && selectedTab.getContent() instanceof AnchorPane rootAnchorPane) {
             // Check for the child AnchorPane
             for (Node node : rootAnchorPane.getChildren()) {
-                if (node instanceof AnchorPane) {
-                    AnchorPane childAnchorPane = (AnchorPane) node;
+                if (node instanceof AnchorPane childAnchorPane) {
                     // Now look for the Canvas within this child AnchorPane
                     for (Node childNode : childAnchorPane.getChildren()) {
                         if (childNode instanceof Canvas) {
@@ -621,5 +553,78 @@ public class PaintController {
             }
         }
         return null;
+    }
+
+    /** Pops up a label that notifies the user that autosave is enabled */
+    private void autoSaveNotification() {
+        Popup popup = new Popup();
+        Label label = new Label("Automatically saved.");
+        label.setStyle("-fx-font-size: 16px;");
+        StackPane pane = new StackPane(label);
+        pane.setStyle("-fx-background-radius: 5; -fx-border-radius: 5;");
+        pane.setAlignment(Pos.TOP_RIGHT);
+        popup.getContent().add(pane);
+        Scene scene = canvas.getScene();
+        if (scene != null) {
+            popup.show(scene.getWindow());
+        }
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), e -> popup.hide()));
+        timeline.play();
+
+    }
+    /** Toggles on or off autosave using a toggle button */
+    @FXML void onAutoSaveButtonClick() {
+        if (autoSave.isSelected()) {
+            logUpdate(" Autosave turned on");
+            startAutoSave();
+            autoSaveNotification();
+        } else {
+            logUpdate(" Autosave turned off");
+            stopAutoSave();
+        }
+    }
+    /** Automatically saves the current canvas every 5 seconds */
+    private void startAutoSave() {
+        if (executorService == null || executorService.isShutdown()) {
+            executorService = Executors.newScheduledThreadPool(1);
+            executorService.scheduleAtFixedRate(() -> Platform.runLater(this::onSaveButtonClick), 5, 5, TimeUnit.SECONDS);
+        }
+    }
+    /** Shuts down autosave */
+    public void stopAutoSave() {
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
+        }
+    }
+
+    /** Calls rotateCanvasWithSnapshot method from RotateTool on the click of a button */
+    @FXML void onRotateCanvasButtonClick() {
+        RotateTool rotateTool = new RotateTool(getCurrentTabCanvas());
+        rotateTool.rotateCanvasWithSnapshot(degrees);
+        logUpdate(" Canvas rotated " + degrees);
+    }
+    /** Calls mirrorCanvas method from RotateTool on the click of a button */
+    @FXML void onMirrorCanvasButtonClick() {
+        RotateTool rotateTool = new RotateTool(getCurrentTabCanvas());
+        rotateTool.mirrorCanvas();
+        logUpdate(" Canvas mirrored");
+    }
+    /** Calls flipCanvas method from RotateTool on the click of a button */
+    @FXML void onFlipCanvasButtonClick() {
+        RotateTool rotateTool = new RotateTool(getCurrentTabCanvas());
+        rotateTool.flipCanvas();
+        logUpdate(" Canvas flipped");
+    }
+    /** Updates a log file with text showing the actions performed during runtime */
+    public void logUpdate(String addThisText) {
+        String file = "/Users/matthewdemik/log.txt";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))){
+            writer.write("[" + dtf.format(now) + "]" + addThisText);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

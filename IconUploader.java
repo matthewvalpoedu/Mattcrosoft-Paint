@@ -5,11 +5,13 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
 import java.util.Objects;
 
+/** Class for uploading icon images to the buttons and toggle buttons in the GUI */
 public class IconUploader {
-    public void uploadImage(ToggleButton toggleButton, String imagePath) { //uploads icon images to togglebuttons
+
+    /** Uploads a small image from a resource folder onto a ToggleButton */
+    public void uploadImage(ToggleButton toggleButton, String imagePath) { //uploads icon images to ToggleButtons
         try {
             Image icon = new Image(Objects.requireNonNull(getClass().getResource(imagePath)).toExternalForm()); //grabs image from resource folder
             ImageView lineImage = new ImageView(icon);
@@ -22,6 +24,7 @@ public class IconUploader {
             System.out.println("Image not found. Please check the file path.");
         }
     }
+    /** Uploads a small image from a resource folder onto a Button */
     public void uploadImage(Button button, String imagePath) { //uploads icon images to normal buttons
         try {
             Image icon = new Image(Objects.requireNonNull(getClass().getResource(imagePath)).toExternalForm()); //grabs image from resource folder

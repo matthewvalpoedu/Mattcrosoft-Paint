@@ -1,6 +1,5 @@
 package com.example.paint;
 
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,13 +10,16 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
+/** Main paint application, launches the GUI, sets keybindings, and starts the web server */
 public class PaintApplication extends Application {
-    @Override
-    public void start(Stage stage) throws IOException {
-        //creates the gui
+    public PaintApplication() throws IOException {
+    }
+
+    /** Starts the GUI, and initializes an alert on closing the application */
+    @Override public void start(Stage stage) throws IOException {
+        // Creates the GUI
         FXMLLoader fxmlLoader = new FXMLLoader(PaintApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 500);
         PaintController controller = fxmlLoader.getController();
@@ -26,7 +28,7 @@ public class PaintApplication extends Application {
         stage.setTitle("Mattcrosoft Pain(t)");
         stage.setScene(scene);
         stage.setMaximized(true);
-        stage.setOnCloseRequest(e -> { //unsaved close alert
+        stage.setOnCloseRequest(e -> { // Unsaved close alert
             if (controller.hasUnsavedChanges()) {
                 e.consume();
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -43,20 +45,19 @@ public class PaintApplication extends Application {
                         stage.close();
                     } else if (response == dontSaveButton) {
                         stage.close();
-                    } else {
-                        //wait for input
                     }
                 });
             }
         });
         stage.show();
     }
-
-    public static void main(String[] args) {
-        //start gui
-        launch();
+    /** Launches the application */
+    public static void main(String[] args) throws IOException {
+        launch(); // Start the JavaFX application
     }
-    public void initializeAccelerators(Scene scene, PaintController controller) { //keybinds
+
+    /** Sets up keybindings to be used when the application is running*/
+    public void initializeAccelerators(Scene scene, PaintController controller) { // Keybindings
         KeyCombination oc = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN);
         scene.getAccelerators().put(oc, controller::onOpenButtonClick);
 

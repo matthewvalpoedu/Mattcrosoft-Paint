@@ -14,6 +14,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
@@ -37,10 +38,26 @@
     <ToolBar prefHeight="90.0" prefWidth="1061.0">
         <TilePane hgap="5.0" prefColumns="2" prefRows="2" vgap="5.0">
             <children>
-                <Button fx:id="undo" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onUndoButtonClick" prefHeight="35.0" prefWidth="35.0" />
-                <Button fx:id="redo" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRedoButtonClick" prefHeight="35.0" prefWidth="35.0" />
-                <TextField fx:id="brushSize" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="3" />
-                <ToggleButton fx:id="dashed" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="35.0" />
+                <Button fx:id="undo" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onUndoButtonClick" prefHeight="35.0" prefWidth="35.0">
+                    <tooltip>
+                        <Tooltip text="Undo" />
+                    </tooltip>
+                </Button>
+                <Button fx:id="redo" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRedoButtonClick" prefHeight="35.0" prefWidth="35.0">
+                    <tooltip>
+                        <Tooltip text="Redo" />
+                    </tooltip>
+                </Button>
+                <TextField fx:id="brushSize" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="3">
+                    <tooltip>
+                        <Tooltip text="Brush Size" />
+                    </tooltip>
+                </TextField>
+                <ToggleButton fx:id="dashed" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="35.0">
+                    <tooltip>
+                        <Tooltip text="Dashed Line" />
+                    </tooltip>
+                </ToggleButton>
             </children>
             <padding>
                 <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
@@ -56,25 +73,139 @@
             <padding>
                 <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
             </padding>
-            <ToggleButton fx:id="deselect" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDeselectButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="draw" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDrawButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="line" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLineButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="square" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSquareButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="triangle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onTriangleButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="rectangle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRectangleButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="eraser" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEraserButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="eyedrop" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEyedropButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="circle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCircleButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="ellipse" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEllipseButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="diamond" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDiamondButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <Button fx:id="clearCanvas" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onClearCanvasButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="textBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onTextBoxButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="parallelogram" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onParallelogramButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="copy" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCopyButtonClick" prefHeight="35.0" prefWidth="35.0" />
-            <ToggleButton fx:id="polygon" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPolygonButtonClick" prefHeight="35.0" prefWidth="35.0" />
+            <ToggleButton fx:id="deselect" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDeselectButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Copy" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="draw" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDrawButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Free Draw" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="line" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLineButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Line" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="square" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSquareButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Square" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="triangle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onTriangleButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Triangle" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="rectangle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRectangleButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Rectangle" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="eraser" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEraserButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Eraser" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="eyedrop" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEyedropButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Copy Color" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="circle" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCircleButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Circle" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="ellipse" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onEllipseButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Ellipse" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="diamond" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onDiamondButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Diamond" />
+                </tooltip>
+            </ToggleButton>
+            <Button fx:id="clearCanvas" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onClearCanvasButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Clear Canvas" />
+                </tooltip>
+            </Button>
+            <ToggleButton fx:id="textBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onTextBoxButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Text Box" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="parallelogram" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onParallelogramButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Draw Parallelogram" />
+                </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="copy" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCopyButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Copy" />
+                </tooltip>
+            </ToggleButton>
+         <ToggleButton fx:id="autoSave" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onAutoSaveButtonClick" prefHeight="35.0" prefWidth="35.0">
+             <tooltip>
+                 <Tooltip text="Auto Save" />
+             </tooltip>
+         </ToggleButton>
         </TilePane>
-        <TextField fx:id="sides" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="3" />
-      <Button fx:id="newTab" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onNewTabButtonClick" prefHeight="35.0" prefWidth="35.0" text="Button" />
+      <TilePane hgap="5.0" prefColumns="4" prefRows="2" vgap="5.0">
+         <children>
+               <ToggleButton fx:id="polygon" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPolygonButtonClick" prefHeight="35.0" prefWidth="35.0">
+                   <tooltip>
+                       <Tooltip text="Polygon" />
+                   </tooltip>
+               </ToggleButton>
+            <ToggleButton fx:id="star" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onStarButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Star" />
+                </tooltip>
+            </ToggleButton>
+            <Button fx:id="rotate" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRotateCanvasButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Rotate Canvas" />
+                </tooltip>
+            </Button>
+            <Button fx:id="mirror" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onMirrorCanvasButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Mirror Canvas" />
+                </tooltip>
+            </Button>
+              <TextField fx:id="sides" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="3">
+                  <tooltip>
+                      <Tooltip text="Sides for Polygon" />
+                  </tooltip>
+              </TextField>
+            <TextField fx:id="points" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="5">
+                <tooltip>
+                    <Tooltip text="Points for Star" />
+                </tooltip>
+            </TextField>
+            <TextField fx:id="degrees" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="35.0" text="180">
+                <tooltip>
+                    <Tooltip text="Degrees for Rotate" />
+                </tooltip>
+            </TextField>
+            <Button fx:id="flip" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onFlipCanvasButtonClick" prefHeight="35.0" prefWidth="35.0">
+                <tooltip>
+                    <Tooltip text="Flip Canvas" />
+                </tooltip>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+         </padding>
+      </TilePane>
+      <Button fx:id="newTab" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onNewTabButtonClick" prefHeight="35.0" prefWidth="35.0" text="+">
+          <tooltip>
+              <Tooltip text="New Tab" />
+          </tooltip>
+      </Button>
     </ToolBar>
     <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
         <tabs>
